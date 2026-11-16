@@ -166,6 +166,40 @@
     }
   }
 
+  // ==== UPDATE JADWAL ====
+  if(isset($_POST['update_jadwal'])){
+    $id_jadwal = trim($_POST['id_jadwal']);
+    $id_film = trim($_POST['id_film']);
+    $tanggal = trim($_POST['tanggal']);
+    $jam_mulai = trim($_POST['jam_mulai']);
+
+    if ($id_jadwal == '' || $id_film == '' || $tanggal == '' || $jam_mulai == '') {
+      $err = "Lengkapi ID Jadwal, Film, Tanggal, dan Jam Mulai.";
+    } else {
+      $stmt = $db->prepare("SELECT durasi FROM film WHERE id_film = ?");
+      $stmt->bind_param("s",$id_film);
+      $stmt->execute();
+      $row = $stmt->get_result()->fetch_assoc();
+      $stmt->close();
+
+      if (!$row || empty($row['durasi'])) {
+        $err = "Durasi film tidak ditemukan.";
+      } else {
+        $jam_selesai = hitung_jam_selesai($jam_mulai, $row['durasi']);
+
+        $stmt = $db->prepare("UPDATE jadwal_tayang SET id_film = ?, tanggal = ?, jam_mulai = ?, jam_selesai = ? WHERE id_jadwal = ?");
+        $stmt->bind_param("sssss", $id_film, $tanggal, $jam_mulai, $jam_selesai, $id_jadwal);
+
+        if ($stmt->execute()) {
+          $ok = "Jadwal berhasil update.";
+        } else {
+          $err = "Gagal untuk mengUpdate jadwal.";
+        }
+        $stmt->close();
+      }
+    }
+  }
+
   // data untuk dropdown (diambil setelah proses di atas, jadi selalu terbaru)
   $studios = $db->query("SELECT id_studio, nama_studio FROM studio ORDER BY nama_studio")->fetch_all(MYSQLI_ASSOC);
   $films = $db->query("SELECT id_film, judul, durasi FROM film ORDER BY judul")->fetch_all(MYSQLI_ASSOC);
