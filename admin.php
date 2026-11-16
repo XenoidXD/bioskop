@@ -48,7 +48,7 @@
     $nama = trim($_POST['nama_studio']);
     $kapasitas = (int)$_POST['kapasitas'];
 
-    if($id == '' || $nama == '' || $kapasitas == <= 0){
+    if($id == '' || $nama == '' || $kapasitas <= 0){
       $err = "Lengkapi id, nama, kapasitas.";
     }else{
       $stmt = $db->prepare("UPDATE studio SET nama_studio = ?, kapasitas = ? where id = ? ");
