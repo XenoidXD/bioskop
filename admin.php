@@ -110,22 +110,29 @@
     } else {
       $stmt = $db->prepare("UPDATE film SET id_studio = ?, judul = ?, genre = ?, durasi = ?, rating = ?, harga = ?, sinopsis = ?, mulai_tayang = ?, selesai_tayang = ? WHERE id_film = ?");
       $stmt->bind_param("ssssiissss", $id_studio, $judul, $genre, $durasi, $rating, $harga, $sinopsis, $mulai, $selesai, $id_film);
-      $stmt->execute();
-      $stmt->close();
-
-      //ai statement : durasi bisa berubah, maka dari itu dihitunng ulang untuk jam selesai 
-      $stmt = $db->prepare("SELECT id_jadwal, jam_mulai FROM jadwal_tayang WHERE id_film = ?");
-      $stmt->bind_param("s", $id_film);
-      $stmt->execute();
-      $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-      $stmt->close();
-
-      foreach($rows as $r){
-        $js = hitung_jam_selesai($r['jam_mulai'],$durasi);
-        $stmt = $db->prepare("UPDATE jadwal_tayang SET jam_selesai = ? WHERE id_jadwal = ?");
-        $stmt->bind_param("ss",$js,$r['id_jadwal']);
-        $stmt->execute();
+      
+      if($stmt->execute()){
         $stmt->close();
+
+        //ai statement : durasi bisa berubah, maka dari itu dihitunng ulang untuk jam selesai 
+        $stmt = $db->prepare("SELECT id_jadwal, jam_mulai FROM jadwal_tayang WHERE id_film = ?");
+        $stmt->bind_param("s", $id_film);
+        $stmt->execute();
+        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+
+        foreach($rows as $r){
+          $js = hitung_jam_selesai($r['jam_mulai'],$durasi);
+          $stmt = $db->prepare("UPDATE jadwal_tayang SET jam_selesai = ? WHERE id_jadwal = ?");
+          $stmt->bind_param("ss",$js,$r['id_jadwal']);
+          $stmt->execute();
+          $stmt->close();
+        }
+
+        $ok = "Film berhasil diUpdate.";
+      } else {
+        $stmt->close();
+        $err = "Gagal untuk update Film.";
       }
     }
   }
