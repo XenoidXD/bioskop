@@ -110,51 +110,6 @@
     }
   }
 
-  // ==== UPDATE FILM ====
-  if (isset($_POST['update_film'])){
-    $id_film = trim($_POST['id_film']);
-    $id_studio = trim($_POST['id_studio_ref']);
-    $judul = trim($_POST['judul']);
-    $genre = trim($_POST['genre']);
-    $durasi = trim($_POST['durasi']);
-    $rating = (int)$_POST['rating'];
-    $harga = (int)$_POST['harga'];
-    $sinopsis = trim($_POST['sinopsis']);
-    $mulai = trim($_POST['mulai_tayang']);
-    $selesai = trim($_POST['selesai_tayang']);
-
-    if ($id_film == '' || $id_studio == '' || $judul == '' || $durasi == '' || $mulai == '' || $selesai == '' || $harga <= 0) {
-      $err = "Lengkapi field wajib film (termasuk harga).";
-    } else {
-      $stmt = $db->prepare("UPDATE film SET id_studio = ?, judul = ?, genre = ?, durasi = ?, rating = ?, harga = ?, sinopsis = ?, mulai_tayang = ?, selesai_tayang = ? WHERE id_film = ?");
-      $stmt->bind_param("ssssiissss", $id_studio, $judul, $genre, $durasi, $rating, $harga, $sinopsis, $mulai, $selesai, $id_film);
-      
-      if($stmt->execute()){
-        $stmt->close();
-
-        //durasi bisa berubah, maka dari itu dihitunng ulang untuk jam selesai 
-        $stmt = $db->prepare("SELECT id_jadwal, jam_mulai FROM jadwal_tayang WHERE id_film = ?");
-        $stmt->bind_param("s", $id_film);
-        $stmt->execute();
-        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
-
-        foreach($rows as $r){
-          $js = hitung_jam_selesai($r['jam_mulai'],$durasi);
-          $stmt = $db->prepare("UPDATE jadwal_tayang SET jam_selesai = ? WHERE id_jadwal = ?");
-          $stmt->bind_param("ss",$js,$r['id_jadwal']);
-          $stmt->execute();
-          $stmt->close();
-        }
-
-        $ok = "Film berhasil diUpdate.";
-      } else {
-        $stmt->close();
-        $err = "Gagal untuk update Film.";
-      }
-    }
-  }
-
   // ===== TAMBAH JADWAL =====
   if (isset($_POST['add_jadwal'])) {
     $id_jadwal = trim($_POST['id_jadwal']);
@@ -228,6 +183,7 @@
   // data untuk dropdown (diambil setelah proses di atas, jadi selalu terbaru)
   $studios = $db->query("SELECT id_studio, nama_studio FROM studio ORDER BY nama_studio")->fetch_all(MYSQLI_ASSOC);
   $films = $db->query("SELECT id_film, judul, durasi FROM film ORDER BY judul")->fetch_all(MYSQLI_ASSOC);
+
   ?>
   <!doctype html>
   <html lang="id">
