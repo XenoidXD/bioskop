@@ -15,14 +15,14 @@ if ($id_pemesanan == "") {
   exit;
 }
 
+$id_user = (int)$_SESSION['user']['id'];
+$id_pemesanan_aman = esc($id_pemesanan);
+
 // pastikan pesanan milik user yang login
-$stmt = $db->prepare("SELECT pe.nama, pe.email FROM pemesanan p
+$hasil = mysqli_query($db, "SELECT pe.nama, pe.email FROM pemesanan p
   JOIN penonton pe ON pe.id_penonton = p.id_penonton
-  WHERE p.id_pemesanan = ? AND p.id_penonton = ?");
-$stmt->bind_param("si", $id_pemesanan, $_SESSION['user']['id']);
-$stmt->execute();
-$pesanan = $stmt->get_result()->fetch_assoc();
-$stmt->close();
+  WHERE p.id_pemesanan = '$id_pemesanan_aman' AND p.id_penonton = $id_user");
+$pesanan = mysqli_fetch_assoc($hasil);
 
 if (!$pesanan) {
   header("Location: index.php");
@@ -30,24 +30,19 @@ if (!$pesanan) {
 }
 
 // info film dan jadwal untuk ditampilkan
-$stmt = $db->prepare("SELECT j.tanggal, j.jam_mulai, j.jam_selesai, f.judul, s.nama_studio
+$hasil = mysqli_query($db, "SELECT j.tanggal, j.jam_mulai, j.jam_selesai, f.judul, s.nama_studio
   FROM tiket t
   JOIN jadwal_tayang j ON j.id_jadwal = t.id_jadwal
   JOIN film f ON f.id_film = j.id_film
   JOIN studio s ON s.id_studio = f.id_studio
-  WHERE t.id_pemesanan = ?
+  WHERE t.id_pemesanan = '$id_pemesanan_aman'
   LIMIT 1");
-$stmt->bind_param("s", $id_pemesanan);
-$stmt->execute();
-$info = $stmt->get_result()->fetch_assoc();
-$stmt->close();
+$info = mysqli_fetch_assoc($hasil);
 
 // total bayar = jumlah harga semua tiket
-$stmt = $db->prepare("SELECT COALESCE(SUM(harga), 0) AS total FROM tiket WHERE id_pemesanan = ?");
-$stmt->bind_param("s", $id_pemesanan);
-$stmt->execute();
-$total = (int)$stmt->get_result()->fetch_assoc()['total'];
-$stmt->close();
+$hasil = mysqli_query($db, "SELECT COALESCE(SUM(harga), 0) AS total FROM tiket WHERE id_pemesanan = '$id_pemesanan_aman'");
+$baris = mysqli_fetch_assoc($hasil);
+$total = (int)$baris['total'];
 
 // daftar metode pembayaran (sesuai ENUM di database)
 $metode_list = ['Gopay', 'OVO', 'Shopee-Pay', 'Bank Transfer', 'QRIS'];
@@ -67,16 +62,15 @@ if (isset($_POST['bayar'])) {
     $id_bayar = 'PB' . str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
     $status = 'SUKSES'; // untuk demo
 
-    $stmt = $db->prepare("INSERT INTO pembayaran (id_pembayaran, id_pemesanan, metode_bayar, total_bayar, status_bayar)
-      VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssis", $id_bayar, $id_pemesanan, $metode, $total, $status);
+    // $metode sudah dicek lewat in_array di atas, jadi aman
+    $sql = "INSERT INTO pembayaran (id_pembayaran, id_pemesanan, metode_bayar, total_bayar, status_bayar)
+      VALUES ('$id_bayar', '$id_pemesanan_aman', '$metode', $total, '$status')";
 
-    if ($stmt->execute()) {
+    if (mysqli_query($db, $sql)) {
       $ok = "Pembayaran berhasil. ID Pembayaran: " . $id_bayar;
     } else {
       $err = "Gagal menyimpan pembayaran.";
     }
-    $stmt->close();
   }
 }
 ?>
