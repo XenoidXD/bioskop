@@ -29,6 +29,12 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
   <main class="max-w-6xl mx-auto px-4 py-8">
     <h1 class="text-2xl md:text-3xl font-bold mb-6">Daftar Film</h1>
 
+    <?php if (!empty($_GET['ok'])): ?>
+      <div class="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"><?= h($_GET['ok']) ?></div>
+    <?php elseif (!empty($_GET['err'])): ?>
+      <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"><?= h($_GET['err']) ?></div>
+    <?php endif; ?>
+
     <!-- SEDANG TAYANG -->
     <section class="mb-10">
       <h2 class="text-xl md:text-2xl font-bold mb-3">Sedang Tayang</h2>
@@ -49,7 +55,13 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
                   <?php if (!empty($f['nama_studio'])): ?> • Studio: <?= h($f['nama_studio']) ?><?php endif; ?>
                 </p>
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
-                  <a href="edit_film.php?id=<?= h($f['id_film']) ?>" class="text-purple-600 font-medium">Edit →</a>
+                  <div class="flex items-center gap-3">
+                    <a href="edit_film.php?id=<?= h($f['id_film']) ?>" class="text-purple-600 font-medium">Edit →</a>
+                    <form method="post" action="hapus_film.php" onsubmit="return confirm('Hapus film <?= h(addslashes($f['judul'])) ?>?')">
+                      <input type="hidden" name="id_film" value="<?= h($f['id_film']) ?>">
+                      <button type="submit" class="text-red-500 font-medium">Hapus</button>
+                    </form>
+                  </div>
                 <?php else: ?>
                   <a href="order.php?id=<?= h($f['id_film']) ?>" class="text-indigo-600 font-medium">Pesan →</a>
                 <?php endif; ?>
@@ -77,7 +89,13 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
                 </div>
                 <p class="text-xs text-gray-500">Mulai <?= h($f['mulai_tayang']) ?></p>
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
-                  <a href="edit_film.php?id=<?= h($f['id_film']) ?>" class="text-purple-600 font-medium">Edit →</a>
+                  <div class="flex items-center gap-3">
+                    <a href="edit_film.php?id=<?= h($f['id_film']) ?>" class="text-purple-600 font-medium">Edit →</a>
+                    <form method="post" action="hapus_film.php" onsubmit="return confirm('Hapus film <?= h(addslashes($f['judul'])) ?>?')">
+                      <input type="hidden" name="id_film" value="<?= h($f['id_film']) ?>">
+                      <button type="submit" class="text-red-500 font-medium">Hapus</button>
+                    </form>
+                  </div>
                 <?php else: ?>
                   <a href="order.php?id=<?= h($f['id_film']) ?>" class="text-indigo-600 font-medium">Lihat Jadwal →</a>
                 <?php endif; ?>
@@ -105,7 +123,13 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
                 </div>
                 <p class="text-xs text-gray-500">Selesai <?= h($f['selesai_tayang']) ?></p>
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
-                  <a href="edit_film.php?id=<?= h($f['id_film']) ?>" class="text-purple-600 font-medium">Edit →</a>
+                  <div class="flex items-center gap-3">
+                    <a href="edit_film.php?id=<?= h($f['id_film']) ?>" class="text-purple-600 font-medium">Edit →</a>
+                    <form method="post" action="hapus_film.php" onsubmit="return confirm('Hapus film <?= h(addslashes($f['judul'])) ?>?')">
+                      <input type="hidden" name="id_film" value="<?= h($f['id_film']) ?>">
+                      <button type="submit" class="text-red-500 font-medium">Hapus</button>
+                    </form>
+                  </div>
                 <?php else: ?>
                   <span class="text-gray-400 font-medium">Tidak tersedia</span>
                 <?php endif; ?>
