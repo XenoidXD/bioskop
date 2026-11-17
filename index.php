@@ -43,9 +43,9 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
       <?php else: ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <?php while ($f = $sekarang->fetch_assoc()): ?>
-            <article class="rounded-2xl border bg-white shadow-sm overflow-hidden">
+            <article class="rounded-2xl border bg-white shadow-sm overflow-hidden flex flex-col">
               <div class="h-40 bg-gray-200 grid place-items-center"><span class="text-5xl">🎬</span></div>
-              <div class="p-4 space-y-2">
+              <div class="p-4 flex flex-col flex-1 gap-2">
                 <div class="flex items-start justify-between gap-3">
                   <h3 class="font-semibold text-lg"><?= h($f['judul']) ?></h3>
                   <span class="text-xs px-2 py-1 rounded-full bg-gray-100 border"><?= h($f['genre']) ?></span>
@@ -55,7 +55,7 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
                   <?php if (!empty($f['nama_studio'])): ?> • Studio: <?= h($f['nama_studio']) ?><?php endif; ?>
                 </p>
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
-                  <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-3 mt-auto pt-1">
                     <a href="edit_film.php?id=<?= h($f['id_film']) ?>" class="text-purple-600 font-medium">Edit →</a>
                     <form method="post" action="hapus_film.php" onsubmit="return confirm('Hapus film <?= h(addslashes($f['judul'])) ?>?')">
                       <input type="hidden" name="id_film" value="<?= h($f['id_film']) ?>">
@@ -63,7 +63,7 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
                     </form>
                   </div>
                 <?php else: ?>
-                  <a href="order.php?id=<?= h($f['id_film']) ?>" class="text-indigo-600 font-medium">Pesan →</a>
+                  <a href="order.php?id=<?= h($f['id_film']) ?>" class="text-indigo-600 font-medium mt-auto pt-1">Pesan →</a>
                 <?php endif; ?>
               </div>
             </article>
@@ -80,16 +80,16 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
       <?php else: ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <?php while ($f = $akan->fetch_assoc()): ?>
-            <article class="rounded-2xl border bg-white shadow-sm overflow-hidden">
+            <article class="rounded-2xl border bg-white shadow-sm overflow-hidden flex flex-col">
               <div class="h-40 bg-gray-200 grid place-items-center"><span class="text-5xl">🎬</span></div>
-              <div class="p-4 space-y-2">
+              <div class="p-4 flex flex-col flex-1 gap-2">
                 <div class="flex items-start justify-between gap-3">
                   <h3 class="font-semibold text-lg"><?= h($f['judul']) ?></h3>
                   <span class="text-xs px-2 py-1 rounded-full bg-gray-100 border"><?= h($f['genre']) ?></span>
                 </div>
                 <p class="text-xs text-gray-500">Mulai <?= h($f['mulai_tayang']) ?></p>
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
-                  <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-3 mt-auto pt-1">
                     <a href="edit_film.php?id=<?= h($f['id_film']) ?>" class="text-purple-600 font-medium">Edit →</a>
                     <form method="post" action="hapus_film.php" onsubmit="return confirm('Hapus film <?= h(addslashes($f['judul'])) ?>?')">
                       <input type="hidden" name="id_film" value="<?= h($f['id_film']) ?>">
@@ -97,7 +97,7 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
                     </form>
                   </div>
                 <?php else: ?>
-                  <a href="order.php?id=<?= h($f['id_film']) ?>" class="text-indigo-600 font-medium">Lihat Jadwal →</a>
+                  <a href="order.php?id=<?= h($f['id_film']) ?>" class="text-indigo-600 font-medium mt-auto pt-1">Lihat Jadwal →</a>
                 <?php endif; ?>
               </div>
             </article>
@@ -114,16 +114,16 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
       <?php else: ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <?php while ($f = $lewat->fetch_assoc()): ?>
-            <article class="rounded-2xl border bg-white shadow-sm overflow-hidden opacity-75">
+            <article class="rounded-2xl border bg-white shadow-sm overflow-hidden opacity-75 flex flex-col">
               <div class="h-40 bg-gray-200 grid place-items-center"><span class="text-5xl">🎬</span></div>
-              <div class="p-4 space-y-2">
+              <div class="p-4 flex flex-col flex-1 gap-2">
                 <div class="flex items-start justify-between gap-3">
                   <h3 class="font-semibold text-lg"><?= h($f['judul']) ?></h3>
                   <span class="text-xs px-2 py-1 rounded-full bg-gray-100 border"><?= h($f['genre']) ?></span>
                 </div>
                 <p class="text-xs text-gray-500">Selesai <?= h($f['selesai_tayang']) ?></p>
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
-                  <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-3 mt-auto pt-1">
                     <a href="edit_film.php?id=<?= h($f['id_film']) ?>" class="text-purple-600 font-medium">Edit →</a>
                     <form method="post" action="hapus_film.php" onsubmit="return confirm('Hapus film <?= h(addslashes($f['judul'])) ?>?')">
                       <input type="hidden" name="id_film" value="<?= h($f['id_film']) ?>">
@@ -131,7 +131,7 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
                     </form>
                   </div>
                 <?php else: ?>
-                  <span class="text-gray-400 font-medium">Tidak tersedia</span>
+                  <span class="text-gray-400 font-medium mt-auto pt-1">Tidak tersedia</span>
                 <?php endif; ?>
               </div>
             </article>
