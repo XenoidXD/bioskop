@@ -48,7 +48,11 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
                   Durasi: <?= h(substr($f['durasi'], 0, 5)) ?> • <?= (int)$f['rating'] ?>+
                   <?php if (!empty($f['nama_studio'])): ?> • Studio: <?= h($f['nama_studio']) ?><?php endif; ?>
                 </p>
-                <a href="order.php?id=<?= h($f['id_film']) ?>" class="text-indigo-600 font-medium">Pesan →</a>
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
+                  <a href="edit_film.php?id=<?= h($f['id_film']) ?>" class="text-purple-600 font-medium">Edit →</a>
+                <?php else: ?>
+                  <a href="order.php?id=<?= h($f['id_film']) ?>" class="text-indigo-600 font-medium">Pesan →</a>
+                <?php endif; ?>
               </div>
             </article>
           <?php endwhile; ?>
@@ -72,7 +76,11 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
                   <span class="text-xs px-2 py-1 rounded-full bg-gray-100 border"><?= h($f['genre']) ?></span>
                 </div>
                 <p class="text-xs text-gray-500">Mulai <?= h($f['mulai_tayang']) ?></p>
-                <a href="order.php?id=<?= h($f['id_film']) ?>" class="text-indigo-600 font-medium">Lihat Jadwal →</a>
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
+                  <a href="edit_film.php?id=<?= h($f['id_film']) ?>" class="text-purple-600 font-medium">Edit →</a>
+                <?php else: ?>
+                  <a href="order.php?id=<?= h($f['id_film']) ?>" class="text-indigo-600 font-medium">Lihat Jadwal →</a>
+                <?php endif; ?>
               </div>
             </article>
           <?php endwhile; ?>
@@ -96,7 +104,11 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
                   <span class="text-xs px-2 py-1 rounded-full bg-gray-100 border"><?= h($f['genre']) ?></span>
                 </div>
                 <p class="text-xs text-gray-500">Selesai <?= h($f['selesai_tayang']) ?></p>
-                <span class="text-gray-400 font-medium">Tidak tersedia</span>
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
+                  <a href="edit_film.php?id=<?= h($f['id_film']) ?>" class="text-purple-600 font-medium">Edit →</a>
+                <?php else: ?>
+                  <span class="text-gray-400 font-medium">Tidak tersedia</span>
+                <?php endif; ?>
               </div>
             </article>
           <?php endwhile; ?>
