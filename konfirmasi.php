@@ -7,8 +7,8 @@ require_login();
 function buat_id_tiket($db) {
   do {
     $id = 'TK' . strtoupper(bin2hex(random_bytes(6)));
-    $cek = $db->query("SELECT id_tiket FROM tiket WHERE id_tiket = '$id'");
-  } while ($cek->num_rows > 0);
+    $cek = mysqli_query($db, "SELECT id_tiket FROM tiket WHERE id_tiket = '$id'");
+  } while (mysqli_num_rows($cek) > 0);
   return $id;
 }
 
@@ -30,18 +30,19 @@ if ($id_pemesanan == "" || $id_jadwal == "" || count($kursi_dipilih) == 0) {
   exit;
 }
 
+$id_user = (int)$_SESSION['user']['id'];
+$id_pemesanan_aman = esc($id_pemesanan);
+$id_jadwal_aman = esc($id_jadwal);
+
 // ambil data pemesanan milik user, lengkap dengan jadwal, film, dan harga
-$stmt = $db->prepare("SELECT p.jumlah_tiket, j.tanggal, j.jam_mulai, j.jam_selesai,
+$hasil = mysqli_query($db, "SELECT p.jumlah_tiket, j.tanggal, j.jam_mulai, j.jam_selesai,
     f.judul, f.harga, f.id_studio, s.nama_studio
   FROM pemesanan p
-  JOIN jadwal_tayang j ON j.id_jadwal = ?
+  JOIN jadwal_tayang j ON j.id_jadwal = '$id_jadwal_aman'
   JOIN film f ON f.id_film = j.id_film
   JOIN studio s ON s.id_studio = f.id_studio
-  WHERE p.id_pemesanan = ? AND p.id_penonton = ?");
-$stmt->bind_param("ssi", $id_jadwal, $id_pemesanan, $_SESSION['user']['id']);
-$stmt->execute();
-$data = $stmt->get_result()->fetch_assoc();
-$stmt->close();
+  WHERE p.id_pemesanan = '$id_pemesanan_aman' AND p.id_penonton = $id_user");
+$data = mysqli_fetch_assoc($hasil);
 
 if (!$data) {
   header("Location: index.php");
@@ -59,25 +60,22 @@ if (count($kursi_dipilih) != $kuota) {
 }
 
 // pastikan kursi belum dipakai orang lain di jadwal ini
-$cek = $db->prepare("SELECT nomor_kursi FROM tiket WHERE id_jadwal = ? AND nomor_kursi = ?");
 foreach ($kursi_dipilih as $nomor) {
-  $cek->bind_param("ss", $id_jadwal, $nomor);
-  $cek->execute();
-  if ($cek->get_result()->num_rows > 0) {
+  $nomor_aman = esc($nomor);
+  $cek = mysqli_query($db, "SELECT nomor_kursi FROM tiket WHERE id_jadwal = '$id_jadwal_aman' AND nomor_kursi = '$nomor_aman'");
+  if (mysqli_num_rows($cek) > 0) {
     header("Location: " . $url_kursi);
     exit;
   }
 }
-$cek->close();
 
 // simpan satu tiket untuk setiap kursi
-$ins = $db->prepare("INSERT INTO tiket (id_tiket, nomor_kursi, id_pemesanan, id_jadwal, harga) VALUES (?, ?, ?, ?, ?)");
 foreach ($kursi_dipilih as $nomor) {
+  $nomor_aman = esc($nomor);
   $id_tiket = buat_id_tiket($db);
-  $ins->bind_param("ssssi", $id_tiket, $nomor, $id_pemesanan, $id_jadwal, $harga);
-  $ins->execute();
+  mysqli_query($db, "INSERT INTO tiket (id_tiket, nomor_kursi, id_pemesanan, id_jadwal, harga)
+    VALUES ('$id_tiket', '$nomor_aman', '$id_pemesanan_aman', '$id_jadwal_aman', $harga)");
 }
-$ins->close();
 
 $total = $harga * $kuota;
 ?>
