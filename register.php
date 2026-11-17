@@ -5,21 +5,19 @@ include "auth.php";
 $message = "";
 
 if (isset($_POST['confirm'])) {
-  $email = $_POST['email'];
-  $password = $_POST['password'];
-  $nama = $_POST['nama'];
-  $nohp = $_POST['nohp'];
+  $email = esc($_POST['email']);
+  $password = esc($_POST['password']);
+  $nama = esc($_POST['nama']);
+  $nohp = esc($_POST['nohp']);
 
-  $stmt = $db->prepare("INSERT INTO penonton (email, password, nama, nomor_hp) VALUES (?, ?, ?, ?)");
-  $stmt->bind_param("ssss", $email, $password, $nama, $nohp);
+  $sql = "INSERT INTO penonton (email, password, nama, nomor_hp) VALUES ('$email', '$password', '$nama', '$nohp')";
 
-  if ($stmt->execute()) {
+  if (mysqli_query($db, $sql)) {
     header("Location: login.php");
     exit;
   } else {
     $message = "Gagal";
   }
-  $stmt->close();
 }
 ?>
 <!DOCTYPE html>
