@@ -7,6 +7,8 @@
 
         <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
           <span class="text-gray-600">Hi, Administrator</span>
+          <a href="admin.php" class="text-purple-600 font-medium">Admin Panel</a>
+          <a href="index.php" class="text-indigo-600">Halaman User</a>
           <a href="logout.php" class="text-red-600">Keluar</a>
         <?php else: ?>
           <span class="text-gray-600">Hi, <?= h($_SESSION['user']['nama']) ?></span>
