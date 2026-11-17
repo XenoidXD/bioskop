@@ -19,6 +19,24 @@
     return gmdate('H:i:s', $total);
   }
 
+  //func untuk delete (jadi satu agar bisa dipake)
+  function hapus_data($db, $sql, $id, $nama){
+    try{
+      $stmt = $db->prepare($sql);
+      $stmt->bind_param("s",$id);
+      $stmt->execute();
+      $terhapus = $stmt->affected_rows;
+      $stmt->close();
+      if($terhapus > 0){
+        return [$nama . " dihapus.", ""];
+      } else {
+        return ["", $nama . " tidak ditemukan."];
+      }
+    } catch (mysqli_sql_exception $e){
+      return ["", "Gagal menghapus " . strtolower($nama) . ": masih dipakai data lain(film/jadwal/tiket). Hapus data terkait dulu."];
+    }
+  }
+
   $ok = "";
   $err = "";
 
@@ -114,7 +132,7 @@
       if($stmt->execute()){
         $stmt->close();
 
-        //ai statement : durasi bisa berubah, maka dari itu dihitunng ulang untuk jam selesai 
+        //durasi bisa berubah, maka dari itu dihitunng ulang untuk jam selesai 
         $stmt = $db->prepare("SELECT id_jadwal, jam_mulai FROM jadwal_tayang WHERE id_film = ?");
         $stmt->bind_param("s", $id_film);
         $stmt->execute();
