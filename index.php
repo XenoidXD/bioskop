@@ -4,16 +4,16 @@ require "database.php";
 require_login();
 
 // film yang sedang tayang
-$sekarang = $db->query("SELECT f.*, s.nama_studio FROM film f
+$sekarang = mysqli_query($db, "SELECT f.*, s.nama_studio FROM film f
   LEFT JOIN studio s ON s.id_studio = f.id_studio
   WHERE CURDATE() BETWEEN f.mulai_tayang AND f.selesai_tayang
   ORDER BY f.judul");
 
 // film yang akan tayang
-$akan = $db->query("SELECT * FROM film WHERE mulai_tayang > CURDATE() ORDER BY mulai_tayang ASC");
+$akan = mysqli_query($db, "SELECT * FROM film WHERE mulai_tayang > CURDATE() ORDER BY mulai_tayang ASC");
 
 // film yang sudah pernah tayang
-$lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER BY selesai_tayang DESC");
+$lewat = mysqli_query($db, "SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER BY selesai_tayang DESC");
 ?>
 <!doctype html>
 <html lang="id">
@@ -32,11 +32,11 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
     <!-- SEDANG TAYANG -->
     <section class="mb-10">
       <h2 class="text-xl md:text-2xl font-bold mb-3">Sedang Tayang</h2>
-      <?php if ($sekarang->num_rows == 0): ?>
+      <?php if (mysqli_num_rows($sekarang) == 0): ?>
         <div class="rounded-xl border bg-white p-4 text-gray-600">Belum ada film.</div>
       <?php else: ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <?php while ($f = $sekarang->fetch_assoc()): ?>
+          <?php while ($f = mysqli_fetch_assoc($sekarang)): ?>
             <article class="rounded-2xl border bg-white shadow-sm overflow-hidden">
               <div class="h-40 bg-gray-200 grid place-items-center"><span class="text-5xl">🎬</span></div>
               <div class="p-4 space-y-2">
@@ -63,11 +63,11 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
     <!-- AKAN TAYANG -->
     <section class="mb-10">
       <h2 class="text-xl md:text-2xl font-bold mb-3">Akan Tayang</h2>
-      <?php if ($akan->num_rows == 0): ?>
+      <?php if (mysqli_num_rows($akan) == 0): ?>
         <div class="rounded-xl border bg-white p-4 text-gray-600">Tidak ada jadwal mendatang.</div>
       <?php else: ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <?php while ($f = $akan->fetch_assoc()): ?>
+          <?php while ($f = mysqli_fetch_assoc($akan)): ?>
             <article class="rounded-2xl border bg-white shadow-sm overflow-hidden">
               <div class="h-40 bg-gray-200 grid place-items-center"><span class="text-5xl">🎬</span></div>
               <div class="p-4 space-y-2">
@@ -91,11 +91,11 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
     <!-- SUDAH PERNAH TAYANG -->
     <section>
       <h2 class="text-xl md:text-2xl font-bold mb-3">Sudah Pernah Tayang</h2>
-      <?php if ($lewat->num_rows == 0): ?>
+      <?php if (mysqli_num_rows($lewat) == 0): ?>
         <div class="rounded-xl border bg-white p-4 text-gray-600">Belum ada arsip.</div>
       <?php else: ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <?php while ($f = $lewat->fetch_assoc()): ?>
+          <?php while ($f = mysqli_fetch_assoc($lewat)): ?>
             <article class="rounded-2xl border bg-white shadow-sm overflow-hidden opacity-75">
               <div class="h-40 bg-gray-200 grid place-items-center"><span class="text-5xl">🎬</span></div>
               <div class="p-4 space-y-2">
