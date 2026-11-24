@@ -45,7 +45,7 @@ $lewat = mysqli_query($db, "SELECT * FROM film WHERE selesai_tayang < CURDATE() 
           <?php while ($f = mysqli_fetch_assoc($sekarang)): ?>
             <article class="rounded-2xl border bg-white shadow-sm overflow-hidden">
               <div class="h-40 bg-gray-200 grid place-items-center"><span class="text-5xl">🎬</span></div>
-              <div class="p-4 space-y-2">
+              <div class="p-4 flex flex-col flex-1 gap-2">
                 <div class="flex items-start justify-between gap-3">
                   <h3 class="font-semibold text-lg"><?= h($f['judul']) ?></h3>
                   <span class="text-xs px-2 py-1 rounded-full bg-gray-100 border"><?= h($f['genre']) ?></span>
@@ -63,7 +63,7 @@ $lewat = mysqli_query($db, "SELECT * FROM film WHERE selesai_tayang < CURDATE() 
                     </form>
                   </div>
                 <?php else: ?>
-                  <a href="order.php?id=<?= h($f['id_film']) ?>" class="text-indigo-600 font-medium">Pesan →</a>
+                  <a href="order.php?id=<?= h($f['id_film']) ?>" class="text-indigo-600 font-medium mt-auto pt-1">Pesan →</a>
                 <?php endif; ?>
               </div>
             </article>
@@ -82,7 +82,7 @@ $lewat = mysqli_query($db, "SELECT * FROM film WHERE selesai_tayang < CURDATE() 
           <?php while ($f = mysqli_fetch_assoc($akan)): ?>
             <article class="rounded-2xl border bg-white shadow-sm overflow-hidden">
               <div class="h-40 bg-gray-200 grid place-items-center"><span class="text-5xl">🎬</span></div>
-              <div class="p-4 space-y-2">
+              <div class="p-4 flex flex-col flex-1 gap-2">
                 <div class="flex items-start justify-between gap-3">
                   <h3 class="font-semibold text-lg"><?= h($f['judul']) ?></h3>
                   <span class="text-xs px-2 py-1 rounded-full bg-gray-100 border"><?= h($f['genre']) ?></span>
@@ -97,7 +97,7 @@ $lewat = mysqli_query($db, "SELECT * FROM film WHERE selesai_tayang < CURDATE() 
                     </form>
                   </div>
                 <?php else: ?>
-                  <a href="order.php?id=<?= h($f['id_film']) ?>" class="text-indigo-600 font-medium">Lihat Jadwal →</a>
+                  <a href="order.php?id=<?= h($f['id_film']) ?>" class="text-indigo-600 font-medium mt-auto pt-1">Lihat Jadwal →</a>
                 <?php endif; ?>
               </div>
             </article>
@@ -116,7 +116,7 @@ $lewat = mysqli_query($db, "SELECT * FROM film WHERE selesai_tayang < CURDATE() 
           <?php while ($f = mysqli_fetch_assoc($lewat)): ?>
             <article class="rounded-2xl border bg-white shadow-sm overflow-hidden opacity-75">
               <div class="h-40 bg-gray-200 grid place-items-center"><span class="text-5xl">🎬</span></div>
-              <div class="p-4 space-y-2">
+              <div class="p-4 flex flex-col flex-1 gap-2">
                 <div class="flex items-start justify-between gap-3">
                   <h3 class="font-semibold text-lg"><?= h($f['judul']) ?></h3>
                   <span class="text-xs px-2 py-1 rounded-full bg-gray-100 border"><?= h($f['genre']) ?></span>
@@ -131,7 +131,7 @@ $lewat = mysqli_query($db, "SELECT * FROM film WHERE selesai_tayang < CURDATE() 
                     </form>
                   </div>
                 <?php else: ?>
-                  <span class="text-gray-400 font-medium">Tidak tersedia</span>
+                  <span class="text-gray-400 font-medium mt-auto pt-1">Tidak tersedia</span>
                 <?php endif; ?>
               </div>
             </article>
