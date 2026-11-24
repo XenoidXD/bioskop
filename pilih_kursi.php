@@ -16,12 +16,14 @@ if ($id_pemesanan == "" || $id_jadwal == "" || $id_studio == "") {
   exit;
 }
 
+$id_user = (int)$_SESSION['user']['id'];
+$id_pemesanan_aman = esc($id_pemesanan);
+$id_jadwal_aman = esc($id_jadwal);
+$id_studio_aman = esc($id_studio);
+
 // pastikan pemesanan ini milik user yang login
-$stmt = $db->prepare("SELECT * FROM pemesanan WHERE id_pemesanan = ? AND id_penonton = ?");
-$stmt->bind_param("si", $id_pemesanan, $_SESSION['user']['id']);
-$stmt->execute();
-$pemesanan = $stmt->get_result()->fetch_assoc();
-$stmt->close();
+$hasil = mysqli_query($db, "SELECT * FROM pemesanan WHERE id_pemesanan = '$id_pemesanan_aman' AND id_penonton = $id_user");
+$pemesanan = mysqli_fetch_assoc($hasil);
 
 if (!$pemesanan) {
   header("Location: index.php");
@@ -29,22 +31,15 @@ if (!$pemesanan) {
 }
 
 // semua kursi di studio
-$stmt = $db->prepare("SELECT nomor_kursi FROM kursi WHERE id_studio = ? ORDER BY nomor_kursi");
-$stmt->bind_param("s", $id_studio);
-$stmt->execute();
-$kursi = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-$stmt->close();
+$hasil = mysqli_query($db, "SELECT nomor_kursi FROM kursi WHERE id_studio = '$id_studio_aman' ORDER BY nomor_kursi");
+$kursi = mysqli_fetch_all($hasil, MYSQLI_ASSOC);
 
 // kursi yang sudah dipakai di jadwal ini
 $terpakai = [];
-$stmt = $db->prepare("SELECT nomor_kursi FROM tiket WHERE id_jadwal = ?");
-$stmt->bind_param("s", $id_jadwal);
-$stmt->execute();
-$hasil = $stmt->get_result();
-while ($baris = $hasil->fetch_assoc()) {
+$hasil = mysqli_query($db, "SELECT nomor_kursi FROM tiket WHERE id_jadwal = '$id_jadwal_aman'");
+while ($baris = mysqli_fetch_assoc($hasil)) {
   $terpakai[] = $baris['nomor_kursi'];
 }
-$stmt->close();
 
 $kuota = (int)$pemesanan['jumlah_tiket'];
 ?>

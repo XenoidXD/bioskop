@@ -28,11 +28,9 @@ if (isset($_POST['confirm'])) {
   }
 
   // login penonton biasa
-  $stmt = $db->prepare("SELECT id_penonton, email, nama, password FROM penonton WHERE email = ?");
-  $stmt->bind_param("s", $email);
-  $stmt->execute();
-  $user = $stmt->get_result()->fetch_assoc();
-  $stmt->close();
+  $email_aman = esc($email);
+  $hasil = mysqli_query($db, "SELECT id_penonton, email, nama, password FROM penonton WHERE email = '$email_aman'");
+  $user = mysqli_fetch_assoc($hasil);
 
   if ($user && $password == $user['password']) {
     $nama = $user['nama'];

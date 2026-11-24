@@ -3,7 +3,7 @@ require "auth.php";
 require "database.php";
 require_login();
 
-$id_user = $_SESSION['user']['id'];
+$id_user = (int)$_SESSION['user']['id'];
 $success = "";
 $error = "";
 
@@ -14,49 +14,34 @@ if (isset($_POST['cancel_order'])) {
   if ($id_pesan == "") {
     $error = "ID pemesanan tidak valid.";
   } else {
+    $id_pesan_aman = esc($id_pesan);
+
     // pastikan pesanan milik user
-    $stmt = $db->prepare("SELECT id_pemesanan FROM pemesanan WHERE id_pemesanan = ? AND id_penonton = ?");
-    $stmt->bind_param("si", $id_pesan, $id_user);
-    $stmt->execute();
-    $punya = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
+    $hasil = mysqli_query($db, "SELECT id_pemesanan FROM pemesanan WHERE id_pemesanan = '$id_pesan_aman' AND id_penonton = $id_user");
+    $punya = mysqli_fetch_assoc($hasil);
 
     if (!$punya) {
       $error = "Pemesanan tidak ditemukan atau bukan milik Anda.";
     } else {
       // cek status pembayaran terakhir
-      $stmt = $db->prepare("SELECT status_bayar FROM pembayaran WHERE id_pemesanan = ? ORDER BY id_pembayaran DESC LIMIT 1");
-      $stmt->bind_param("s", $id_pesan);
-      $stmt->execute();
-      $bayar = $stmt->get_result()->fetch_assoc();
-      $stmt->close();
+      $hasil = mysqli_query($db, "SELECT status_bayar FROM pembayaran WHERE id_pemesanan = '$id_pesan_aman' ORDER BY id_pembayaran DESC LIMIT 1");
+      $bayar = mysqli_fetch_assoc($hasil);
 
       if ($bayar && $bayar['status_bayar'] == 'SUKSES') {
         $error = "Pemesanan sudah dibayar dan tidak bisa dibatalkan.";
       } else {
         // hapus tiket, pembayaran, dan pemesanan dalam satu transaksi
         try {
-          $db->begin_transaction();
+          mysqli_begin_transaction($db);
 
-          $stmt = $db->prepare("DELETE FROM tiket WHERE id_pemesanan = ?");
-          $stmt->bind_param("s", $id_pesan);
-          $stmt->execute();
-          $stmt->close();
+          mysqli_query($db, "DELETE FROM tiket WHERE id_pemesanan = '$id_pesan_aman'");
+          mysqli_query($db, "DELETE FROM pembayaran WHERE id_pemesanan = '$id_pesan_aman'");
+          mysqli_query($db, "DELETE FROM pemesanan WHERE id_pemesanan = '$id_pesan_aman' AND id_penonton = $id_user");
 
-          $stmt = $db->prepare("DELETE FROM pembayaran WHERE id_pemesanan = ?");
-          $stmt->bind_param("s", $id_pesan);
-          $stmt->execute();
-          $stmt->close();
-
-          $stmt = $db->prepare("DELETE FROM pemesanan WHERE id_pemesanan = ? AND id_penonton = ?");
-          $stmt->bind_param("si", $id_pesan, $id_user);
-          $stmt->execute();
-          $stmt->close();
-
-          $db->commit();
+          mysqli_commit($db);
           $success = "Pemesanan berhasil dibatalkan dan dihapus.";
         } catch (Exception $e) {
-          $db->rollback();
+          mysqli_rollback($db);
           $error = "Gagal membatalkan pesanan. Silakan coba lagi.";
         }
       }
@@ -65,36 +50,27 @@ if (isset($_POST['cancel_order'])) {
 }
 
 // ===== AMBIL DAFTAR PESANAN =====
-$stmt = $db->prepare("SELECT * FROM pemesanan WHERE id_penonton = ? ORDER BY tanggal_pesan DESC");
-$stmt->bind_param("i", $id_user);
-$stmt->execute();
-$daftar = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-$stmt->close();
+$hasil = mysqli_query($db, "SELECT * FROM pemesanan WHERE id_penonton = $id_user ORDER BY tanggal_pesan DESC");
+$daftar = mysqli_fetch_all($hasil, MYSQLI_ASSOC);
 
 $items = [];
 foreach ($daftar as $p) {
-  $id_pesan = $p['id_pemesanan'];
+  $id_pesan_aman = esc($p['id_pemesanan']);
 
   // tiket milik pesanan ini (beserta jadwal, film, studio)
-  $stmt = $db->prepare("SELECT t.nomor_kursi, t.harga, j.tanggal, j.jam_mulai, j.jam_selesai, f.judul, s.nama_studio
+  $hasil = mysqli_query($db, "SELECT t.nomor_kursi, t.harga, j.tanggal, j.jam_mulai, j.jam_selesai, f.judul, s.nama_studio
     FROM tiket t
     JOIN jadwal_tayang j ON j.id_jadwal = t.id_jadwal
     JOIN film f ON f.id_film = j.id_film
     JOIN studio s ON s.id_studio = f.id_studio
-    WHERE t.id_pemesanan = ?
+    WHERE t.id_pemesanan = '$id_pesan_aman'
     ORDER BY t.nomor_kursi");
-  $stmt->bind_param("s", $id_pesan);
-  $stmt->execute();
-  $tiket = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-  $stmt->close();
+  $tiket = mysqli_fetch_all($hasil, MYSQLI_ASSOC);
 
   // pembayaran terakhir
-  $stmt = $db->prepare("SELECT metode_bayar, status_bayar, total_bayar FROM pembayaran
-    WHERE id_pemesanan = ? ORDER BY id_pembayaran DESC LIMIT 1");
-  $stmt->bind_param("s", $id_pesan);
-  $stmt->execute();
-  $bayar = $stmt->get_result()->fetch_assoc();
-  $stmt->close();
+  $hasil = mysqli_query($db, "SELECT metode_bayar, status_bayar, total_bayar FROM pembayaran
+    WHERE id_pemesanan = '$id_pesan_aman' ORDER BY id_pembayaran DESC LIMIT 1");
+  $bayar = mysqli_fetch_assoc($hasil);
 
   // data tampilan, defaultnya "-"
   $p['judul'] = '-';

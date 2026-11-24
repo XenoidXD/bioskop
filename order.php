@@ -10,16 +10,14 @@ if (isset($_GET['id'])) {
 $film = null;
 $jadwal = [];
 $error = "";
+$id_film_aman = esc($id_film);
 
 // ambil data film beserta studionya
 if ($id_film != "") {
-  $stmt = $db->prepare("SELECT f.*, s.nama_studio, s.kapasitas FROM film f
+  $hasil = mysqli_query($db, "SELECT f.*, s.nama_studio, s.kapasitas FROM film f
     LEFT JOIN studio s ON s.id_studio = f.id_studio
-    WHERE f.id_film = ?");
-  $stmt->bind_param("s", $id_film);
-  $stmt->execute();
-  $film = $stmt->get_result()->fetch_assoc();
-  $stmt->close();
+    WHERE f.id_film = '$id_film_aman'");
+  $film = mysqli_fetch_assoc($hasil);
 }
 
 // harga dan total (untuk ringkasan)
@@ -42,7 +40,7 @@ if ($film && isset($_POST['buat_pesan'])) {
 
   $id_user = 0;
   if (isset($_SESSION['user'])) {
-    $id_user = $_SESSION['user']['id'];
+    $id_user = (int)$_SESSION['user']['id'];
   }
 
   if ($id_user == 0) {
@@ -52,30 +50,25 @@ if ($film && isset($_POST['buat_pesan'])) {
   } else {
     $id_pesan = 'PM' . substr(time() . mt_rand(100, 999), -8);
 
-    $stmt = $db->prepare("INSERT INTO pemesanan (id_pemesanan, id_penonton, tanggal_pesan, jumlah_tiket)
-      VALUES (?, ?, NOW(), ?)");
-    $stmt->bind_param("sii", $id_pesan, $id_user, $jumlah);
+    $sql = "INSERT INTO pemesanan (id_pemesanan, id_penonton, tanggal_pesan, jumlah_tiket)
+      VALUES ('$id_pesan', $id_user, NOW(), $jumlah)";
 
-    if ($stmt->execute()) {
+    if (mysqli_query($db, $sql)) {
       $id_studio = $film['id_studio'];
       header("Location: pilih_kursi.php?id_pemesanan=$id_pesan&id_jadwal=$id_jadwal&id_studio=$id_studio");
       exit;
     } else {
       $error = "Gagal menyimpan pemesanan.";
     }
-    $stmt->close();
   }
 }
 
 // ambil jadwal tayang mulai hari ini
 if ($film) {
-  $stmt = $db->prepare("SELECT * FROM jadwal_tayang
-    WHERE id_film = ? AND tanggal >= CURDATE()
+  $hasil = mysqli_query($db, "SELECT * FROM jadwal_tayang
+    WHERE id_film = '$id_film_aman' AND tanggal >= CURDATE()
     ORDER BY tanggal ASC, jam_mulai ASC");
-  $stmt->bind_param("s", $id_film);
-  $stmt->execute();
-  $jadwal = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-  $stmt->close();
+  $jadwal = mysqli_fetch_all($hasil, MYSQLI_ASSOC);
 }
 ?>
 <!doctype html>

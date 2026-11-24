@@ -4,16 +4,16 @@ require "database.php";
 require_login();
 
 // film yang sedang tayang
-$sekarang = $db->query("SELECT f.*, s.nama_studio FROM film f
+$sekarang = mysqli_query($db, "SELECT f.*, s.nama_studio FROM film f
   LEFT JOIN studio s ON s.id_studio = f.id_studio
   WHERE CURDATE() BETWEEN f.mulai_tayang AND f.selesai_tayang
   ORDER BY f.judul");
 
 // film yang akan tayang
-$akan = $db->query("SELECT * FROM film WHERE mulai_tayang > CURDATE() ORDER BY mulai_tayang ASC");
+$akan = mysqli_query($db, "SELECT * FROM film WHERE mulai_tayang > CURDATE() ORDER BY mulai_tayang ASC");
 
 // film yang sudah pernah tayang
-$lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER BY selesai_tayang DESC");
+$lewat = mysqli_query($db, "SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER BY selesai_tayang DESC");
 ?>
 <!doctype html>
 <html lang="id">
@@ -38,12 +38,12 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
     <!-- SEDANG TAYANG -->
     <section class="mb-10">
       <h2 class="text-xl md:text-2xl font-bold mb-3">Sedang Tayang</h2>
-      <?php if ($sekarang->num_rows == 0): ?>
+      <?php if (mysqli_num_rows($sekarang) == 0): ?>
         <div class="rounded-xl border bg-white p-4 text-gray-600">Belum ada film.</div>
       <?php else: ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <?php while ($f = $sekarang->fetch_assoc()): ?>
-            <article class="rounded-2xl border bg-white shadow-sm overflow-hidden flex flex-col">
+          <?php while ($f = mysqli_fetch_assoc($sekarang)): ?>
+            <article class="rounded-2xl border bg-white shadow-sm overflow-hidden">
               <div class="h-40 bg-gray-200 grid place-items-center"><span class="text-5xl">🎬</span></div>
               <div class="p-4 flex flex-col flex-1 gap-2">
                 <div class="flex items-start justify-between gap-3">
@@ -55,7 +55,7 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
                   <?php if (!empty($f['nama_studio'])): ?> • Studio: <?= h($f['nama_studio']) ?><?php endif; ?>
                 </p>
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
-                  <div class="flex items-center gap-3 mt-auto pt-1">
+                  <div class="flex items-center gap-3">
                     <a href="edit_film.php?id=<?= h($f['id_film']) ?>" class="text-purple-600 font-medium">Edit →</a>
                     <form method="post" action="hapus_film.php" onsubmit="return confirm('Hapus film <?= h(addslashes($f['judul'])) ?>?')">
                       <input type="hidden" name="id_film" value="<?= h($f['id_film']) ?>">
@@ -75,12 +75,12 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
     <!-- AKAN TAYANG -->
     <section class="mb-10">
       <h2 class="text-xl md:text-2xl font-bold mb-3">Akan Tayang</h2>
-      <?php if ($akan->num_rows == 0): ?>
+      <?php if (mysqli_num_rows($akan) == 0): ?>
         <div class="rounded-xl border bg-white p-4 text-gray-600">Tidak ada jadwal mendatang.</div>
       <?php else: ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <?php while ($f = $akan->fetch_assoc()): ?>
-            <article class="rounded-2xl border bg-white shadow-sm overflow-hidden flex flex-col">
+          <?php while ($f = mysqli_fetch_assoc($akan)): ?>
+            <article class="rounded-2xl border bg-white shadow-sm overflow-hidden">
               <div class="h-40 bg-gray-200 grid place-items-center"><span class="text-5xl">🎬</span></div>
               <div class="p-4 flex flex-col flex-1 gap-2">
                 <div class="flex items-start justify-between gap-3">
@@ -89,7 +89,7 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
                 </div>
                 <p class="text-xs text-gray-500">Mulai <?= h($f['mulai_tayang']) ?></p>
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
-                  <div class="flex items-center gap-3 mt-auto pt-1">
+                  <div class="flex items-center gap-3">
                     <a href="edit_film.php?id=<?= h($f['id_film']) ?>" class="text-purple-600 font-medium">Edit →</a>
                     <form method="post" action="hapus_film.php" onsubmit="return confirm('Hapus film <?= h(addslashes($f['judul'])) ?>?')">
                       <input type="hidden" name="id_film" value="<?= h($f['id_film']) ?>">
@@ -109,12 +109,12 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
     <!-- SUDAH PERNAH TAYANG -->
     <section>
       <h2 class="text-xl md:text-2xl font-bold mb-3">Sudah Pernah Tayang</h2>
-      <?php if ($lewat->num_rows == 0): ?>
+      <?php if (mysqli_num_rows($lewat) == 0): ?>
         <div class="rounded-xl border bg-white p-4 text-gray-600">Belum ada arsip.</div>
       <?php else: ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <?php while ($f = $lewat->fetch_assoc()): ?>
-            <article class="rounded-2xl border bg-white shadow-sm overflow-hidden opacity-75 flex flex-col">
+          <?php while ($f = mysqli_fetch_assoc($lewat)): ?>
+            <article class="rounded-2xl border bg-white shadow-sm overflow-hidden opacity-75">
               <div class="h-40 bg-gray-200 grid place-items-center"><span class="text-5xl">🎬</span></div>
               <div class="p-4 flex flex-col flex-1 gap-2">
                 <div class="flex items-start justify-between gap-3">
@@ -123,7 +123,7 @@ $lewat = $db->query("SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER B
                 </div>
                 <p class="text-xs text-gray-500">Selesai <?= h($f['selesai_tayang']) ?></p>
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
-                  <div class="flex items-center gap-3 mt-auto pt-1">
+                  <div class="flex items-center gap-3">
                     <a href="edit_film.php?id=<?= h($f['id_film']) ?>" class="text-purple-600 font-medium">Edit →</a>
                     <form method="post" action="hapus_film.php" onsubmit="return confirm('Hapus film <?= h(addslashes($f['judul'])) ?>?')">
                       <input type="hidden" name="id_film" value="<?= h($f['id_film']) ?>">

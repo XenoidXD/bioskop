@@ -3,16 +3,13 @@ require "auth.php";
 require "database.php";
 require_login();
 
-$id_user = $_SESSION['user']['id'];
+$id_user = (int)$_SESSION['user']['id'];
 $message = "";
 $success = "";
 
 // ambil data user saat ini
-$stmt = $db->prepare("SELECT email, nama, nomor_hp FROM penonton WHERE id_penonton = ?");
-$stmt->bind_param("i", $id_user);
-$stmt->execute();
-$current = $stmt->get_result()->fetch_assoc();
-$stmt->close();
+$hasil = mysqli_query($db, "SELECT email, nama, nomor_hp FROM penonton WHERE id_penonton = $id_user");
+$current = mysqli_fetch_assoc($hasil);
 
 if (!$current) {
   header("Location: logout.php");
@@ -40,28 +37,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   if (!$berubah) {
     $message = "Tidak ada perubahan data.";
   } else {
+    $email_aman = esc($email);
+    $nama_aman = esc($nama);
+    $nohp_aman = esc($nohp);
+    $password_aman = esc($password);
+
     // kalau email diganti, pastikan belum dipakai orang lain
     if ($email != $current['email']) {
-      $stmt = $db->prepare("SELECT id_penonton FROM penonton WHERE email = ? AND id_penonton <> ?");
-      $stmt->bind_param("si", $email, $id_user);
-      $stmt->execute();
-      if ($stmt->get_result()->num_rows > 0) {
+      $hasil = mysqli_query($db, "SELECT id_penonton FROM penonton WHERE email = '$email_aman' AND id_penonton <> $id_user");
+      if (mysqli_num_rows($hasil) > 0) {
         $message = "Email sudah digunakan pengguna lain.";
       }
-      $stmt->close();
     }
 
     if ($message == "") {
       // password hanya diubah kalau diisi
       if ($password != '') {
-        $stmt = $db->prepare("UPDATE penonton SET email = ?, nama = ?, nomor_hp = ?, password = ? WHERE id_penonton = ?");
-        $stmt->bind_param("ssssi", $email, $nama, $nohp, $password, $id_user);
+        $sql = "UPDATE penonton SET email = '$email_aman', nama = '$nama_aman', nomor_hp = '$nohp_aman', password = '$password_aman' WHERE id_penonton = $id_user";
       } else {
-        $stmt = $db->prepare("UPDATE penonton SET email = ?, nama = ?, nomor_hp = ? WHERE id_penonton = ?");
-        $stmt->bind_param("sssi", $email, $nama, $nohp, $id_user);
+        $sql = "UPDATE penonton SET email = '$email_aman', nama = '$nama_aman', nomor_hp = '$nohp_aman' WHERE id_penonton = $id_user";
       }
 
-      if ($stmt->execute()) {
+      if (mysqli_query($db, $sql)) {
         $success = "Profil berhasil diperbarui.";
 
         // perbarui session supaya navbar ikut berubah
@@ -79,7 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       } else {
         $message = "Gagal memperbarui profil.";
       }
-      $stmt->close();
     }
   }
 }

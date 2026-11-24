@@ -1,4 +1,4 @@
-  <?php
+<?php
   require "auth.php";
   require "database.php";
   require_admin();
@@ -20,13 +20,11 @@
   }
 
   //func untuk delete (jadi satu agar bisa dipake)
-  function hapus_data($db, $sql, $id, $nama){
+  // contoh: hapus_data($db, "DELETE FROM film WHERE id_film = '" . esc($id) . "'", "Film");
+  function hapus_data($db, $sql, $nama){
     try{
-      $stmt = $db->prepare($sql);
-      $stmt->bind_param("s",$id);
-      $stmt->execute();
-      $terhapus = $stmt->affected_rows;
-      $stmt->close();
+      mysqli_query($db, $sql);
+      $terhapus = mysqli_affected_rows($db);
       if($terhapus > 0){
         return [$nama . " dihapus.", ""];
       } else {
@@ -42,147 +40,129 @@
 
   // ===== TAMBAH STUDIO =====
   if (isset($_POST['add_studio'])) {
-    $id = trim($_POST['id_studio']);
-    $nama = trim($_POST['nama_studio']);
+    $id = esc(trim($_POST['id_studio']));
+    $nama = esc(trim($_POST['nama_studio']));
     $kapasitas = (int)$_POST['kapasitas'];
 
     if ($id == '' || $nama == '' || $kapasitas <= 0) {
       $err = "Lengkapi id, nama, kapasitas.";
     } else {
-      $stmt = $db->prepare("INSERT INTO studio (id_studio, nama_studio, kapasitas) VALUES (?, ?, ?)");
-      $stmt->bind_param("ssi", $id, $nama, $kapasitas);
-      if ($stmt->execute()) {
+      if (mysqli_query($db, "INSERT INTO studio (id_studio, nama_studio, kapasitas) VALUES ('$id', '$nama', $kapasitas)")) {
         $ok = "Studio ditambahkan.";
       } else {
         $err = "Gagal menambah studio.";
       }
-      $stmt->close();
     }
   }
 
   //==== UPDATE STUDIO ====
   if(isset($_POST['update_studio'])){
-    $id = trim($_POST['id_studio']);
-    $nama = trim($_POST['nama_studio']);
+    $id = esc(trim($_POST['id_studio']));
+    $nama = esc(trim($_POST['nama_studio']));
     $kapasitas = (int)$_POST['kapasitas'];
 
     if($id == '' || $nama == '' || $kapasitas <= 0){
       $err = "Lengkapi id, nama, kapasitas.";
     }else{
-      $stmt = $db->prepare("UPDATE studio SET nama_studio = ?, kapasitas = ? WHERE id_studio = ? ");
-      $stmt->bind_param("sis", $nama, $kapasitas, $id);
-      if($stmt->execute()){
+      if(mysqli_query($db, "UPDATE studio SET nama_studio = '$nama', kapasitas = $kapasitas WHERE id_studio = '$id'")){
         $ok = "Studio berhasil di Update.";
       }else{
         $err = "Gagal Update Studio.";
       }
-      $stmt->close();
     }
   }
 
   // ===== TAMBAH FILM =====
   if (isset($_POST['add_film'])) {
-    $id_film = trim($_POST['id_film']);
-    $id_studio = trim($_POST['id_studio_ref']);
-    $judul = trim($_POST['judul']);
-    $genre = trim($_POST['genre']);
-    $durasi = trim($_POST['durasi']);
+    $id_film = esc(trim($_POST['id_film']));
+    $id_studio = esc(trim($_POST['id_studio_ref']));
+    $judul = esc(trim($_POST['judul']));
+    $genre = esc(trim($_POST['genre']));
+    $durasi = esc(trim($_POST['durasi']));
     $rating = (int)$_POST['rating'];
     $harga = (int)$_POST['harga'];
-    $sinopsis = trim($_POST['sinopsis']);
-    $mulai = trim($_POST['mulai_tayang']);
-    $selesai = trim($_POST['selesai_tayang']);
+    $sinopsis = esc(trim($_POST['sinopsis']));
+    $mulai = esc(trim($_POST['mulai_tayang']));
+    $selesai = esc(trim($_POST['selesai_tayang']));
 
     if ($id_film == '' || $id_studio == '' || $judul == '' || $durasi == '' || $mulai == '' || $selesai == '' || $harga <= 0) {
       $err = "Lengkapi field wajib film (termasuk harga).";
     } else {
-      $stmt = $db->prepare("INSERT INTO film
+      $sql = "INSERT INTO film
         (id_film, id_studio, judul, genre, durasi, rating, harga, sinopsis, mulai_tayang, selesai_tayang)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-      $stmt->bind_param("sssssiisss", $id_film, $id_studio, $judul, $genre, $durasi, $rating, $harga, $sinopsis, $mulai, $selesai);
+        VALUES ('$id_film', '$id_studio', '$judul', '$genre', '$durasi', $rating, $harga, '$sinopsis', '$mulai', '$selesai')";
 
-      if ($stmt->execute()) {
+      if (mysqli_query($db, $sql)) {
         $ok = "Film ditambahkan.";
       } else {
         $err = "Gagal menambah film.";
       }
-      $stmt->close();
     }
   }
 
   // ===== TAMBAH JADWAL =====
   if (isset($_POST['add_jadwal'])) {
-    $id_jadwal = trim($_POST['id_jadwal']);
-    $id_film = trim($_POST['id_film']);
-    $tanggal = trim($_POST['tanggal']);
-    $jam_mulai = trim($_POST['jam_mulai']);
+    $id_jadwal = esc(trim($_POST['id_jadwal']));
+    $id_film = esc(trim($_POST['id_film']));
+    $tanggal = esc(trim($_POST['tanggal']));
+    $jam_mulai = esc(trim($_POST['jam_mulai']));
 
     if ($id_jadwal == '' || $id_film == '' || $tanggal == '' || $jam_mulai == '') {
       $err = "Lengkapi ID Jadwal, Film, Tanggal, dan Jam Mulai.";
     } else {
       // ambil durasi film
-      $stmt = $db->prepare("SELECT durasi FROM film WHERE id_film = ?");
-      $stmt->bind_param("s", $id_film);
-      $stmt->execute();
-      $row = $stmt->get_result()->fetch_assoc();
-      $stmt->close();
+      $hasil = mysqli_query($db, "SELECT durasi FROM film WHERE id_film = '$id_film'");
+      $row = mysqli_fetch_assoc($hasil);
 
       if (!$row || empty($row['durasi'])) {
         $err = "Durasi film tidak ditemukan.";
       } else {
         $jam_selesai = hitung_jam_selesai($jam_mulai, $row['durasi']);
 
-        $stmt = $db->prepare("INSERT INTO jadwal_tayang (id_jadwal, id_film, tanggal, jam_mulai, jam_selesai)
-          VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssss", $id_jadwal, $id_film, $tanggal, $jam_mulai, $jam_selesai);
+        $sql = "INSERT INTO jadwal_tayang (id_jadwal, id_film, tanggal, jam_mulai, jam_selesai)
+          VALUES ('$id_jadwal', '$id_film', '$tanggal', '$jam_mulai', '$jam_selesai')";
 
-        if ($stmt->execute()) {
+        if (mysqli_query($db, $sql)) {
           $ok = "Jadwal berhasil ditambahkan.";
         } else {
           $err = "Gagal menambah jadwal.";
         }
-        $stmt->close();
       }
     }
   }
 
   // ==== UPDATE JADWAL ====
   if(isset($_POST['update_jadwal'])){
-    $id_jadwal = trim($_POST['id_jadwal']);
-    $id_film = trim($_POST['id_film']);
-    $tanggal = trim($_POST['tanggal']);
-    $jam_mulai = trim($_POST['jam_mulai']);
+    $id_jadwal = esc(trim($_POST['id_jadwal']));
+    $id_film = esc(trim($_POST['id_film']));
+    $tanggal = esc(trim($_POST['tanggal']));
+    $jam_mulai = esc(trim($_POST['jam_mulai']));
 
     if ($id_jadwal == '' || $id_film == '' || $tanggal == '' || $jam_mulai == '') {
       $err = "Lengkapi ID Jadwal, Film, Tanggal, dan Jam Mulai.";
     } else {
-      $stmt = $db->prepare("SELECT durasi FROM film WHERE id_film = ?");
-      $stmt->bind_param("s",$id_film);
-      $stmt->execute();
-      $row = $stmt->get_result()->fetch_assoc();
-      $stmt->close();
+      $hasil = mysqli_query($db, "SELECT durasi FROM film WHERE id_film = '$id_film'");
+      $row = mysqli_fetch_assoc($hasil);
 
       if (!$row || empty($row['durasi'])) {
         $err = "Durasi film tidak ditemukan.";
       } else {
         $jam_selesai = hitung_jam_selesai($jam_mulai, $row['durasi']);
 
-        $stmt = $db->prepare("UPDATE jadwal_tayang SET id_film = ?, tanggal = ?, jam_mulai = ?, jam_selesai = ? WHERE id_jadwal = ?");
-        $stmt->bind_param("sssss", $id_film, $tanggal, $jam_mulai, $jam_selesai, $id_jadwal);
+        $sql = "UPDATE jadwal_tayang SET id_film = '$id_film', tanggal = '$tanggal', jam_mulai = '$jam_mulai', jam_selesai = '$jam_selesai' WHERE id_jadwal = '$id_jadwal'";
 
-        if ($stmt->execute()) {
+        if (mysqli_query($db, $sql)) {
           $ok = "Jadwal berhasil update.";
         } else {
           $err = "Gagal untuk mengUpdate jadwal.";
         }
-        $stmt->close();
       }
     }
   }
 
   // data untuk dropdown (diambil setelah proses di atas, jadi selalu terbaru)
-  $studios = $db->query("SELECT id_studio, nama_studio FROM studio ORDER BY nama_studio")->fetch_all(MYSQLI_ASSOC);
-  $films = $db->query("SELECT id_film, judul, durasi FROM film ORDER BY judul")->fetch_all(MYSQLI_ASSOC);
+  $studios = mysqli_fetch_all(mysqli_query($db, "SELECT id_studio, nama_studio FROM studio ORDER BY nama_studio"), MYSQLI_ASSOC);
+  $films = mysqli_fetch_all(mysqli_query($db, "SELECT id_film, judul, durasi FROM film ORDER BY judul"), MYSQLI_ASSOC);
 
   ?>
   <!doctype html>
