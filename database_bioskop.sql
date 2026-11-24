@@ -3,14 +3,13 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 17, 2025 at 02:43 AM
+-- Generation Time: Nov 25, 2026 at 12:30 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
-
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -20,6 +19,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `database_bioskop`
 --
+CREATE DATABASE IF NOT EXISTS `database_bioskop` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `database_bioskop`;
 
 -- --------------------------------------------------------
 
@@ -45,12 +46,16 @@ CREATE TABLE `film` (
 --
 
 INSERT INTO `film` (`id_film`, `id_studio`, `judul`, `genre`, `durasi`, `rating`, `sinopsis`, `harga`, `mulai_tayang`, `selesai_tayang`) VALUES
-('FA001', 'ST03', 'THE RUNNING MAN', 'Aksi', '02:13:00', 17, '0', 65000, '2026-11-18', '2026-12-07'),
-('FA002', 'ST03', 'PREDATOR: BADLANDS', 'Aksi', '01:47:00', 13, '0', 70000, '2026-11-01', '2026-11-08'),
-('FD001', 'ST01', 'SAMPAI TITIK TERAKHIRMU', 'Drama', '01:54:00', 13, '0', 55000, '2026-11-16', '2026-12-07'),
-('FF001', 'ST02', 'WICKED: FOR GOOD', 'Fantasi', '02:17:00', 13, '0', 40000, '2026-11-16', '2026-12-07'),
-('FH001', 'ST02', 'KUNCEN', 'Horror', '01:48:00', 13, '0', 45000, '2026-11-16', '2026-12-07'),
-('FT001', 'ST01', 'NOW YOU SEE ME: NOW YOU DONT', 'Thriller', '01:52:00', 13, '0', 50000, '2026-11-15', '2026-12-07');
+('FA001', 'ST03', 'THE RUNNING MAN', 'Aksi', '02:13:00', 17, 'Seorang pria mengikuti acara permainan bertahan hidup mematikan demi menyelamatkan putrinya yang sakit.', 65000, '2026-11-30', '2026-12-15'),
+('FA002', 'ST03', 'PREDATOR: BADLANDS', 'Aksi', '01:47:00', 13, 'Petualangan baru pemburu luar angkasa di planet terpencil yang penuh ancaman mematikan.', 70000, '2026-11-11', '2026-11-22'),
+('FA003', 'ST03', 'THUNDERBOLTS*', 'Aksi', '02:06:00', 13, 'Sekelompok antihero direkrut pemerintah untuk menjalankan misi rahasia berisiko tinggi.', 60000, '2026-11-05', '2026-11-18'),
+('FD001', 'ST01', 'SAMPAI TITIK TERAKHIRMU', 'Drama', '01:54:00', 13, 'Kisah perjuangan cinta dan kesetiaan pasangan muda menghadapi ujian hidup yang berat.', 55000, '2026-11-22', '2026-12-09'),
+('FD002', 'ST01', '1 KAKAK 7 PONAKAN', 'Drama', '02:11:00', 13, 'Seorang arsitek muda mendadak harus mengurus tujuh keponakannya setelah kakaknya meninggal dunia.', 50000, '2026-11-08', '2026-11-20'),
+('FD003', 'ST01', 'SORE: ISTRI DARI MASA DEPAN', 'Drama', '01:58:00', 13, 'Seorang wanita datang dari masa depan untuk mengubah kebiasaan buruk suaminya sebelum terlambat.', 55000, '2026-12-03', '2026-12-20'),
+('FF001', 'ST02', 'WICKED: FOR GOOD', 'Fantasi', '02:17:00', 13, 'Kelanjutan kisah persahabatan dan perpecahan antara Elphaba dan Glinda di negeri Oz.', 40000, '2026-11-22', '2026-12-09'),
+('FF002', 'ST02', 'AVATAR: FIRE AND ASH', 'Fantasi', '03:02:00', 13, 'Keluarga Jake Sully menghadapi klan Na\'vi baru yang agresif di wilayah vulkanik Pandora.', 65000, '2026-12-05', '2026-12-25'),
+('FH001', 'ST02', 'KUNCEN', 'Horror', '01:48:00', 13, 'Teror mistis menghantui sekelompok pendaki setelah juru kunci gunung menghilang secara misterius.', 45000, '2026-11-22', '2026-12-09'),
+('FT001', 'ST01', 'NOW YOU SEE ME: NOW YOU DONT', 'Thriller', '01:52:00', 13, 'Kelompok pesulap Four Horsemen kembali beraksi dengan trik pencurian berlian skala internasional.', 50000, '2026-11-22', '2026-12-09');
 
 -- --------------------------------------------------------
 
@@ -71,20 +76,20 @@ CREATE TABLE `jadwal_tayang` (
 --
 
 INSERT INTO `jadwal_tayang` (`id_jadwal`, `id_film`, `jam_mulai`, `jam_selesai`, `tanggal`) VALUES
-('FD1001', 'FD001', '15:34:00', '17:28:00', '2026-11-17'),
-('JFD1002', 'FD001', '11:36:00', '13:30:00', '2026-11-19'),
-('JFD1003', 'FD001', '20:09:00', '22:03:00', '2026-11-20'),
-('JFF001', 'FF001', '10:40:00', '12:03:00', '2026-11-17'),
-('JFF1002', 'FF001', '17:00:00', '18:53:00', '2026-11-17'),
-('JFF1003', 'FF001', '12:35:00', '14:52:00', '2026-11-18'),
-('JFH1001', 'FH001', '10:20:00', '12:00:00', '2026-11-18'),
-('JFH1002', 'FH001', '10:33:00', '12:21:00', '2026-11-17'),
-('JFH1003', 'FH001', '17:50:00', '19:38:00', '2026-11-18'),
-('JFH1004', 'FH001', '10:04:00', '11:52:00', '2026-11-19'),
-('JFT1001', 'FT001', '18:30:00', '20:00:00', '2026-11-16'),
-('JFT1003', 'FT001', '12:43:00', '14:35:00', '2026-11-19'),
-('JFT1004', 'FT001', '11:40:00', '13:32:00', '2026-11-17'),
-('JFT1005', 'FT001', '14:44:00', '16:36:00', '2026-11-21');
+('FD1001', 'FD001', '15:34:00', '17:28:00', '2026-11-25'),
+('JFD1002', 'FD001', '11:36:00', '13:30:00', '2026-11-27'),
+('JFD1003', 'FD001', '20:09:00', '22:03:00', '2026-11-28'),
+('JFF001', 'FF001', '10:40:00', '12:57:00', '2026-11-25'),
+('JFF1002', 'FF001', '17:00:00', '19:17:00', '2026-11-25'),
+('JFF1003', 'FF001', '12:35:00', '14:52:00', '2026-11-26'),
+('JFH1001', 'FH001', '10:20:00', '12:08:00', '2026-11-26'),
+('JFH1002', 'FH001', '10:33:00', '12:21:00', '2026-11-25'),
+('JFH1003', 'FH001', '17:50:00', '19:38:00', '2026-11-26'),
+('JFH1004', 'FH001', '10:04:00', '11:52:00', '2026-11-27'),
+('JFT1001', 'FT001', '18:30:00', '20:22:00', '2026-11-25'),
+('JFT1003', 'FT001', '12:43:00', '14:35:00', '2026-11-27'),
+('JFT1004', 'FT001', '11:40:00', '13:32:00', '2026-11-25'),
+('JFT1005', 'FT001', '14:44:00', '16:36:00', '2026-11-29');
 
 -- --------------------------------------------------------
 
@@ -306,12 +311,12 @@ CREATE TABLE `pemesanan` (
 --
 
 INSERT INTO `pemesanan` (`id_pemesanan`, `id_penonton`, `tanggal_pesan`, `jumlah_tiket`) VALUES
-('PM04911680', 1, '2026-11-16 21:55:11', 1),
-('PM06910258', 1, '2026-11-16 22:28:30', 2),
-('PM08387199', 1, '2026-11-16 22:53:07', 2),
-('PM09793105', 1, '2026-11-16 23:16:33', 2),
-('PM10669759', 3, '2026-11-16 23:31:09', 2),
-('PM96449123', 1, '2026-11-16 19:34:09', 4);
+('PM04911680', 1, '2026-11-24 21:55:11', 1),
+('PM06910258', 1, '2026-11-24 22:28:30', 2),
+('PM08387199', 1, '2026-11-24 22:53:07', 2),
+('PM09793105', 1, '2026-11-24 23:16:33', 2),
+('PM10669759', 3, '2026-11-24 23:31:09', 2),
+('PM96449123', 1, '2026-11-24 19:34:09', 4);
 
 -- --------------------------------------------------------
 
@@ -450,8 +455,24 @@ ALTER TABLE `tiket`
   ADD KEY `tiket_jadwal` (`id_jadwal`);
 
 --
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `penonton`
+--
+ALTER TABLE `penonton`
+  MODIFY `id_penonton` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `film`
+--
+ALTER TABLE `film`
+  ADD CONSTRAINT `film_studio` FOREIGN KEY (`id_studio`) REFERENCES `studio` (`id_studio`);
 
 --
 -- Constraints for table `jadwal_tayang`
@@ -483,6 +504,7 @@ ALTER TABLE `pemesanan`
 ALTER TABLE `tiket`
   ADD CONSTRAINT `tiket_jadwal` FOREIGN KEY (`id_jadwal`) REFERENCES `jadwal_tayang` (`id_jadwal`),
   ADD CONSTRAINT `tiket_pemesanan` FOREIGN KEY (`id_pemesanan`) REFERENCES `pemesanan` (`id_pemesanan`) ON DELETE CASCADE ON UPDATE CASCADE;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
