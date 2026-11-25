@@ -27,7 +27,7 @@ if ($film) {
 }
 $jumlah = 1;
 if (isset($_POST['jumlah_tiket'])) {
-  $jumlah = max(1, (int)$_POST['jumlah_tiket']);
+  $jumlah = min(62,max(1, (int)$_POST['jumlah_tiket']));
 }
 $total = $harga * $jumlah;
 
