@@ -6,7 +6,7 @@ require_login();
 // buat id tiket unik (14 karakter), dicek dulu ke database
 function buat_id_tiket($db) {
   do {
-    $id = 'TK' . strtoupper(bin2hex(random_bytes(6)));
+    $id = 'TK' . strtoupper(bin2hex(random_bytes(4)));
     $cek = mysqli_query($db, "SELECT id_tiket FROM tiket WHERE id_tiket = '$id'");
   } while (mysqli_num_rows($cek) > 0);
   return $id;
