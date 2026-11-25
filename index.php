@@ -1,7 +1,7 @@
 <?php
 require "auth.php";
 require "database.php";
-require_login();
+// require_login();
 
 // film yang sedang tayang
 $sekarang = mysqli_query($db, "SELECT f.*, s.nama_studio FROM film f
@@ -15,6 +15,8 @@ $akan = mysqli_query($db, "SELECT * FROM film WHERE mulai_tayang > CURDATE() ORD
 // film yang sudah pernah tayang
 $lewat = mysqli_query($db, "SELECT * FROM film WHERE selesai_tayang < CURDATE() ORDER BY selesai_tayang DESC");
 ?>
+
+
 <!doctype html>
 <html lang="id">
 <head>
